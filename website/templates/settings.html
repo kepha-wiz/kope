@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings - St. George Biology Class</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                        url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #222;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Biology Background Elements */
+        .bio-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bio-element {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+        
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #8bc34a, #4caf50);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .dna {
+            width: 30px;
+            height: 100px;
+            background: linear-gradient(to bottom, #4caf50, #8bc34a, #4caf50);
+            border-radius: 15px;
+            transform: rotate(45deg);
+        }
+        
+        .leaf {
+            width: 40px;
+            height: 60px;
+            background: #8bc34a;
+            border-radius: 0 100% 0 100%;
+            transform: rotate(45deg);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.1;
+            }
+            50% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0.1;
+            }
+        }
+        
+        /* Main Container */
+        main {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        main::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(76, 175, 80, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+            animation: pulse 8s infinite alternate;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.1); opacity: 0.1; }
+        }
+        
+        /* Header Styles */
+        h1 {
+            color: #2E7D32;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 3px;
+        }
+        
+        /* Card Styles */
+        .card {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 5px solid #4CAF50;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        /* Form Styles */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2E7D32;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        input[type="text"],
+        input[type="date"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 16px 14px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
+        }
+        
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="password"]:focus {
+            border-color: #4CAF50;
+            background-color: #fff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+        
+        /* Input Icons */
+        .form-group i {
+            position: absolute;
+            left: 15px;
+            top: 43px;
+            color: #4CAF50;
+            font-size: 1.2rem;
+        }
+        
+        /* Password Toggle */
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 43px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #4CAF50;
+            transition: color 0.3s;
+        }
+        
+        .toggle-password:hover {
+            color: #2E7D32;
+        }
+        
+        /* Password Requirements */
+        .password-requirements {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #666;
+            text-align: left;
+        }
+        
+        .requirement {
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .requirement i {
+            margin-right: 8px;
+            font-size: 0.8rem;
+            color: #ccc;
+            transition: color 0.3s;
+        }
+        
+        .requirement.met i {
+            color: #4CAF50;
+        }
+        
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        input[type="submit"],
+        input[type="button"] {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="submit"] {
+            background: linear-gradient(to right, #4CAF50, #388E3C);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        input[type="submit"]:hover {
+            background: linear-gradient(to right, #388E3C, #2E7D32);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        input[type="button"] {
+            background: #f5f5f5;
+            color: #555;
+            border: 2px solid #e0e0e0;
+        }
+        
+        input[type="button"]:hover {
+            background: #eeeeee;
+            transform: translateY(-2px);
+        }
+        
+        /* Back Button Styles */
+        .back-button {
+            display: inline-block;
+            margin: 1rem 0 0 1rem;
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(to right, #4CAF50, #388E3C);
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .back-button:hover {
+            background: linear-gradient(to right, #388E3C, #2E7D32);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+        }
+        
+        .back-button i {
+            margin-right: 8px;
+        }
+        
+        /* Biology Decorations */
+        .bio-decoration {
+            position: absolute;
+            opacity: 0.1;
+            z-index: 1;
+        }
+        
+        .bio-decoration-1 {
+            top: 20px;
+            right: 20px;
+            font-size: 60px;
+            color: #4CAF50;
+            transform: rotate(15deg);
+        }
+        
+        .bio-decoration-2 {
+            bottom: 20px;
+            left: 20px;
+            font-size: 60px;
+            color: #4CAF50;
+            transform: rotate(-15deg);
+        }
+        
+        /* Alert Styles */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        .alert-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+        
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .alert i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            main {
+                max-width: 98vw;
+                padding: 1.5rem;
+                border-radius: 12px;
+                margin: 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .back-button {
+                margin: 0.5rem 0 0 0.5rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            main {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.7rem;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .bio-decoration-1, .bio-decoration-2 {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Biology-themed background elements -->
+    <div class="bio-bg">
+        <div class="bio-element cell" style="top: 10%; left: 5%; animation-delay: 0s;"></div>
+        <div class="bio-element dna" style="top: 20%; left: 15%; animation-delay: 2s;"></div>
+        <div class="bio-element leaf" style="top: 30%; left: 25%; animation-delay: 4s;"></div>
+        <div class="bio-element cell" style="top: 40%; left: 35%; animation-delay: 6s;"></div>
+        <div class="bio-element dna" style="top: 50%; left: 45%; animation-delay: 8s;"></div>
+        <div class="bio-element leaf" style="top: 60%; left: 55%; animation-delay: 10s;"></div>
+        <div class="bio-element cell" style="top: 70%; left: 65%; animation-delay: 12s;"></div>
+        <div class="bio-element dna" style="top: 80%; left: 75%; animation-delay: 14s;"></div>
+        <div class="bio-element leaf" style="top: 90%; left: 85%; animation-delay: 16s;"></div>
+        <div class="bio-element cell" style="top: 15%; left: 95%; animation-delay: 18s;"></div>
+    </div>
+
+    {% include 'sidebar.html' %}
+    
+    <a href="{{ url_for('views.home') }}" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+    
+    <main>
+        <div class="bio-decoration bio-decoration-1">
+            <i class="fas fa-dna"></i>
+        </div>
+        <div class="bio-decoration bio-decoration-2">
+            <i class="fas fa-leaf"></i>
+        </div>
+        
+        <h1><i class="fas fa-cog"></i> Account Settings</h1>
+        
+        <div class="card">
+            <form id="editUserDetailsForm" method="post" action="{{ url_for('views.edit_details') }}">
+                <div class="form-group">
+                    <label for="firstName"><i class="fas fa-user"></i> First Name</label>
+                    <input type="text" id="firstName" name="firstName" placeholder="{{ current_user.first_name }}" >
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName"><i class="fas fa-id-card"></i> Last Name</label>
+                    <input type="text" id="lastName" name="lastName" placeholder="{{ current_user.last_name }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="dob"><i class="fas fa-calendar-alt"></i> Date of Birth</label>
+                    <input type="date" id="dob" name="dob" placeholder="{{ current_user.dob }}" >
+                </div>
+                
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="password" name="password" 
+                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).{8,}"
+                        title="Password must contain at least one number, one uppercase letter, one lowercase letter, one special character, and at least 8 or more characters">
+                    <span class="toggle-password" onclick="togglePasswordVisibility('password')">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                    <div class="password-requirements">
+                        <div class="requirement" id="length">
+                            <i class="fas fa-circle"></i> At least 8 characters
+                        </div>
+                        <div class="requirement" id="uppercase">
+                            <i class="fas fa-circle"></i> One uppercase letter
+                        </div>
+                        <div class="requirement" id="lowercase">
+                            <i class="fas fa-circle"></i> One lowercase letter
+                        </div>
+                        <div class="requirement" id="number">
+                            <i class="fas fa-circle"></i> One number
+                        </div>
+                        <div class="requirement" id="special">
+                            <i class="fas fa-circle"></i> One special character
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword"><i class="fas fa-lock"></i> Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" 
+                        title="Must match the password entered above.">
+                    <span class="toggle-password" onclick="togglePasswordVisibility('confirmPassword')">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
+                
+                <div class="button-group">
+                    <input type="submit" value="Save Changes" >
+                    <input type="button" value="Cancel" onClick="cancelEdit()">
+                </div>
+            </form>
+        </div>
+    </main>
+    
+    <script>
+        function togglePasswordVisibility(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            const toggleIcon = document.querySelector(`#${fieldId}`).parentElement.querySelector('.toggle-password i');
+            
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = "password";
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+        
+        function cancelEdit() {
+            // Redirect to home page when cancel button is clicked
+            window.location.href = "/"
+        }
+        
+        $(document).ready(function() {
+            // Function to add constraint to DOB field
+            const dob = $("#dob");
+            const today = new Date();
+            const cutoffDate = new Date(today);
+            cutoffDate.setFullYear(today.getFullYear() - 17); // User must be at least 17 years old
+            
+            // Set max attribute to today's date
+            dob.attr("max", today.toISOString().split("T")[0]);
+            
+            dob.on("input", function() {
+                const selectedDate = new Date(this.value);
+                if (selectedDate > cutoffDate) {
+                    this.setCustomValidity("You must be at least 17 years old.");
+                } else {
+                    this.setCustomValidity("");
+                }
+            });
+            
+            // Password requirements validation
+            const password = $("#password");
+            const requirements = {
+                length: /.{8,}/,
+                uppercase: /[A-Z]/,
+                lowercase: /[a-z]/,
+                number: /\d/,
+                special: /[\W]/
+            };
+            
+            password.on('input', function() {
+                const value = $(this).val();
+                
+                $.each(requirements, function(key, regex) {
+                    if (regex.test(value)) {
+                        $(`#${key}`).addClass('met');
+                    } else {
+                        $(`#${key}`).removeClass('met');
+                    }
+                });
+            });
+            
+            // Confirm password validation
+            const confirmPassword = $("#confirmPassword");
+            
+            function validatePasswords() {
+                if (password.val() !== confirmPassword.val()) {
+                    confirmPassword[0].setCustomValidity("Passwords do not match.");
+                } else {
+                    confirmPassword[0].setCustomValidity("");
+                }
+            }
+            
+            password.on("input", validatePasswords);
+            confirmPassword.on("input", validatePasswords);
+            
+            // Form submission
+            $("#editUserDetailsForm").on("submit", function(e) {
+                // Validate password and confirm password
+                const passwordVal = password.val();
+                const confirmPasswordVal = confirmPassword.val();
+                
+                if (passwordVal !== confirmPasswordVal) {
+                    e.preventDefault();
+                    // Create custom alert instead of browser alert
+                    const alertDiv = $(`
+                        <div class="alert alert-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Passwords do not match.</span>
+                        </div>
+                    `);
+                    
+                    $('.card').prepend(alertDiv);
+                    
+                    // Auto-remove alert after 5 seconds
+                    setTimeout(() => {
+                        alertDiv.fadeOut(500, function() {
+                            $(this).remove();
+                        });
+                    }, 5000);
+                    
+                    return false;
+                }
+                
+                // Add loading state to submit button
+                const submitBtn = $(this).find('input[type="submit"]');
+                submitBtn.val("Saving Changes...");
+                submitBtn.prop('disabled', true);
+                
+                // Simulate form submission
+                setTimeout(() => {
+                    submitBtn.val("Save Changes");
+                    submitBtn.prop('disabled', false);
+                }, 2000);
+                
+                return true;
+            });
+            
+            // Add dynamic biology elements
+            function createBioElement() {
+                const types = ['cell', 'dna', 'leaf'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                const element = document.createElement('div');
+                element.className = `bio-element ${type}`;
+                element.style.top = Math.random() * 100 + '%';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 5 + 's';
+                element.style.animationDuration = (15 + Math.random() * 10) + 's';
+                
+                document.querySelector('.bio-bg').appendChild(element);
+                
+                setTimeout(() => {
+                    element.remove();
+                }, 25000);
+            }
+            
+            // Create new bio elements periodically
+            setInterval(createBioElement, 3000);
+            
+            // Add input focus effects
+            $('input').focus(function() {
+                $(this).parent('.form-group').css('transform', 'scale(1.02)');
+            }).blur(function() {
+                $(this).parent('.form-group').css('transform', 'scale(1)');
+            });
+        });
+    </script>
+</body>
+</html>

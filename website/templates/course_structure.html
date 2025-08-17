@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ course.course_code }} - Course Structure</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                        url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #222;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Biology Background Elements */
+        .bio-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bio-element {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+        
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #8bc34a, #4caf50);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .dna {
+            width: 30px;
+            height: 100px;
+            background: linear-gradient(to bottom, #4caf50, #8bc34a, #4caf50);
+            border-radius: 15px;
+            transform: rotate(45deg);
+        }
+        
+        .leaf {
+            width: 40px;
+            height: 60px;
+            background: #8bc34a;
+            border-radius: 0 100% 0 100%;
+            transform: rotate(45deg);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.1;
+            }
+            50% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0.1;
+            }
+        }
+        
+        /* Main Container - Updated to accommodate sidebar */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            margin-left: 280px; /* Add left margin to accommodate sidebar */
+            transition: margin-left 0.3s ease; /* Smooth transition for when sidebar toggles */
+        }
+        
+        /* Header Styles */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: #e0e0e0;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        
+        .nav-button {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .back-button i {
+            margin-right: 8px;
+        }
+        
+        .add-button {
+            background: linear-gradient(to right, #4CAF50, #388E3C);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        .add-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+        }
+        
+        .add-button i {
+            margin-right: 8px;
+        }
+        
+        /* Course Structure */
+        .course-structure {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        .module {
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .module:last-child {
+            border-bottom: none;
+        }
+        
+        .module-header {
+            padding: 1.5rem;
+            background: #f5f5f5;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+        
+        .module-header:hover {
+            background: #eeeeee;
+        }
+        
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2E7D32;
+            display: flex;
+            align-items: center;
+        }
+        
+        .module-title i {
+            margin-right: 10px;
+            color: #4CAF50;
+        }
+        
+        .module-description {
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .module-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+        
+        .action-button {
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .add-topic-button {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+        
+        .add-topic-button:hover {
+            background: #BBDEFB;
+        }
+        
+        .add-topic-button i {
+            margin-right: 5px;
+        }
+        
+        .toggle-button {
+            background: transparent;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+        
+        .toggle-button:hover {
+            background: #f0f0f0;
+        }
+        
+        .topics-container {
+            display: none;
+            padding: 1rem;
+            background: #fafafa;
+        }
+        
+        .topics-container.active {
+            display: block;
+        }
+        
+        .topic {
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+        
+        .topic-header {
+            padding: 1rem 1.5rem;
+            background: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+        
+        .topic-header:hover {
+            background: #f0f0f0;
+        }
+        
+        .topic-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1976D2;
+            display: flex;
+            align-items: center;
+        }
+        
+        .topic-title i {
+            margin-right: 8px;
+            color: #2196F3;
+        }
+        
+        .topic-description {
+            color: #666;
+            margin-top: 0.3rem;
+            font-size: 0.9rem;
+        }
+        
+        .topic-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+        
+        .add-lesson-button {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+        
+        .add-lesson-button:hover {
+            background: #C8E6C9;
+        }
+        
+        .add-lesson-button i {
+            margin-right: 5px;
+        }
+        
+        .lessons-container {
+            display: none;
+            padding: 1rem;
+            background: #fff;
+        }
+        
+        .lessons-container.active {
+            display: block;
+        }
+        
+        .lesson {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #e0e0e0;
+            background: #fff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .lesson:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+        
+        .lesson-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+        
+        .lesson-title i {
+            margin-right: 8px;
+            color: #FF9800;
+        }
+        
+        .lesson-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .lesson-type {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+        
+        .lesson-type.lab {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+        
+        .lesson-type.video {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+        
+        .lesson-type.content {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 2.5rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+                margin-left: 0; /* Remove left margin on small screens */
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .module-title {
+                font-size: 1.1rem;
+            }
+            
+            .topic-title {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Biology-themed background elements -->
+    <div class="bio-bg">
+        <div class="bio-element cell" style="top: 10%; left: 5%; animation-delay: 0s;"></div>
+        <div class="bio-element dna" style="top: 20%; left: 15%; animation-delay: 2s;"></div>
+        <div class="bio-element leaf" style="top: 30%; left: 25%; animation-delay: 4s;"></div>
+        <div class="bio-element cell" style="top: 40%; left: 35%; animation-delay: 6s;"></div>
+        <div class="bio-element dna" style="top: 50%; left: 45%; animation-delay: 8s;"></div>
+        <div class="bio-element leaf" style="top: 60%; left: 55%; animation-delay: 10s;"></div>
+        <div class="bio-element cell" style="top: 70%; left: 65%; animation-delay: 12s;"></div>
+        <div class="bio-element dna" style="top: 80%; left: 75%; animation-delay: 14s;"></div>
+        <div class="bio-element leaf" style="top: 90%; left: 85%; animation-delay: 16s;"></div>
+        <div class="bio-element cell" style="top: 15%; left: 95%; animation-delay: 18s;"></div>
+    </div>
+    
+    {% include 'sidebar.html' %}
+    
+    <div class="container">
+        <div class="header">
+            <h1>{{ course.course_code }}: {{ course.course_name }}</h1>
+            <p>Course Structure - Modules, Topics, and Lessons</p>
+        </div>
+        
+        <div class="nav-buttons">
+            <a href="{{ url_for('views.course_page', course_id=course.id) }}" class="nav-button back-button">
+                <i class="fas fa-arrow-left"></i> Back to Course
+            </a>
+            
+            {% if current_user.user_type == 'teacher' or current_user.user_type == 'admin' %}
+            <a href="{{ url_for('views.add_module', course_id=course.id) }}" class="nav-button add-button">
+                <i class="fas fa-plus"></i> Add Module
+            </a>
+            {% endif %}
+        </div>
+        
+        <div class="course-structure">
+            {% if modules %}
+                {% for module in modules %}
+                <div class="module">
+                    <div class="module-header" onclick="toggleModule(this)">
+                        <div>
+                            <div class="module-title">
+                                <i class="fas fa-book"></i> {{ module.title }}
+                            </div>
+                            {% if module.description %}
+                            <div class="module-description">{{ module.description }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="module-actions">
+                            {% if current_user.user_type == 'teacher' or current_user.user_type == 'admin' %}
+                            <a href="{{ url_for('views.add_topic', course_id=course.id, module_id=module.id) }}" class="action-button add-topic-button">
+                                <i class="fas fa-plus"></i> Add Topic
+                            </a>
+                            {% endif %}
+                            <div class="action-button toggle-button">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="topics-container">
+                        {% if module.topics %}
+                            {% for topic in module.topics %}
+                            <div class="topic">
+                                <div class="topic-header" onclick="toggleTopic(this)">
+                                    <div>
+                                        <div class="topic-title">
+                                            <i class="fas fa-bookmark"></i> {{ topic.title }}
+                                        </div>
+                                        {% if topic.description %}
+                                        <div class="topic-description">{{ topic.description }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="topic-actions">
+                                        {% if current_user.user_type == 'teacher' or current_user.user_type == 'admin' %}
+                                        <a href="{{ url_for('views.add_lesson', course_id=course.id, topic_id=topic.id) }}" class="action-button add-lesson-button">
+                                            <i class="fas fa-plus"></i> Add Lesson
+                                        </a>
+                                        {% endif %}
+                                        <div class="action-button toggle-button">
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="lessons-container">
+                                    {% if topic.lessons %}
+                                        {% for lesson in topic.lessons %}
+                                        <a href="{{ url_for('views.view_lesson', lesson_id=lesson.id) }}" class="lesson">
+                                            <div class="lesson-title">
+                                                <i class="fas fa-play-circle"></i> {{ lesson.title }}
+                                                
+                                                {% if lesson.is_lab %}
+                                                <span class="lesson-type lab">
+                                                    <i class="fas fa-flask"></i> Lab
+                                                </span>
+                                                {% elif lesson.video_url or lesson.video_file %}
+                                                <span class="lesson-type video">
+                                                    <i class="fas fa-video"></i> Video
+                                                </span>
+                                                {% else %}
+                                                <span class="lesson-type content">
+                                                    <i class="fas fa-file-text"></i> Content
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="lesson-meta">
+                                                <span>Order: {{ lesson.order }}</span>
+                                            </div>
+                                        </a>
+                                        {% endfor %}
+                                    {% else %}
+                                    <div class="empty-state">
+                                        <i class="fas fa-book-open"></i>
+                                        <p>No lessons in this topic yet.</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-bookmark"></i>
+                                <p>No topics in this module yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state" style="padding: 3rem;">
+                    <i class="fas fa-book"></i>
+                    <h3>No modules in this course yet.</h3>
+                    <p>Start building your course by adding modules.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        $(document).ready(function() {
+            // Add dynamic biology elements
+            function createBioElement() {
+                const types = ['cell', 'dna', 'leaf'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                const element = document.createElement('div');
+                element.className = `bio-element ${type}`;
+                element.style.top = Math.random() * 100 + '%';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 5 + 's';
+                element.style.animationDuration = (15 + Math.random() * 10) + 's';
+                
+                document.querySelector('.bio-bg').appendChild(element);
+                
+                setTimeout(() => {
+                    element.remove();
+                }, 25000);
+            }
+            
+            // Create new bio elements periodically
+            setInterval(createBioElement, 3000);
+        });
+        
+        function toggleModule(header) {
+            const container = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-button i');
+            
+            container.classList.toggle('active');
+            
+            if (container.classList.contains('active')) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+        
+        function toggleTopic(header) {
+            const container = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-button i');
+            
+            container.classList.toggle('active');
+            
+            if (container.classList.contains('active')) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+    </script>
+</body>
+</html>

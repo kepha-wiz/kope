@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>St.George Biology Class - Dashboard</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 220px;
+            --primary: #0b3d2b;
+            --accent: #4caf50;
+            --secondary: #8bc34a;
+            --background: #f1f8e9;
+            --card-bg: #fff;
+            --border-radius: 14px;
+            --shadow: 0 2px 12px rgba(44,62,80,0.07);
+            --text: #1b5e20;
+            --muted: #558b2f;
+            --light-accent: #c8e6c9;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: var(--background);
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+        }
+        
+        /* Biology-themed background animations */
+        .bio-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bio-element {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+        
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--secondary), var(--accent));
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .dna {
+            width: 30px;
+            height: 100px;
+            background: linear-gradient(to bottom, var(--accent), var(--secondary), var(--accent));
+            border-radius: 15px;
+            transform: rotate(45deg);
+        }
+        
+        .leaf {
+            width: 40px;
+            height: 60px;
+            background: var(--secondary);
+            border-radius: 0 100% 0 100%;
+            transform: rotate(45deg);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.1;
+            }
+            50% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0.1;
+            }
+        }
+        
+        /* Sidebar styles */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            width: var(--sidebar-width);
+            background: linear-gradient(135deg, var(--primary), #1a5f3f);
+            color: #fff;
+            padding: 32px 0 0 0;
+            box-shadow: 2px 0 12px rgba(44,62,80,0.07);
+            z-index: 100;
+            transition: width 0.3s;
+            overflow-x: hidden;
+        }
+        
+        .sidebar.collapsed {
+            width: 60px;
+        }
+        
+        .sidebar img {
+            display: block;
+            margin: 0 auto 32px auto;
+            width: 48px;
+            height: 48px;
+            transition: width 0.3s, height 0.3s;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar ul a {
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 14px 32px;
+            border-radius: 0 24px 24px 0;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar ul a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .sidebar ul a:hover::before {
+            left: 100%;
+        }
+        
+        .sidebar ul a:hover, .sidebar ul a:focus {
+            background: var(--accent);
+            padding-left: 40px;
+        }
+        
+        .sidebar ul a i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar ul a li {
+            transition: opacity 0.3s, margin 0.3s;
+            opacity: 1;
+            margin-left: 0;
+        }
+        
+        .sidebar.collapsed ul a {
+            padding: 14px 16px;
+            justify-content: center;
+        }
+        
+        .sidebar.collapsed ul a:hover {
+            padding-left: 16px;
+        }
+        
+        .sidebar.collapsed ul a li {
+            opacity: 0;
+            margin-left: 0;
+            pointer-events: none;
+        }
+        
+        #sidebar-toggle {
+            position: fixed;
+            top: 18px;
+            left: calc(var(--sidebar-width) + 8px);
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 110;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+        
+        #sidebar-toggle:hover {
+            background: var(--secondary);
+            transform: scale(1.1);
+        }
+        
+        .sidebar.collapsed ~ #sidebar-toggle {
+            left: 68px;
+        }
+        
+        /* Main content styles */
+        main {
+            margin-left: var(--sidebar-width);
+            padding: 32px 16px 32px 16px;
+            max-width: 1200px;
+            margin-right: auto;
+            margin-top: 0;
+            transition: margin-left 0.3s;
+            position: relative;
+        }
+        
+        .sidebar.collapsed ~ main {
+            margin-left: 60px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 24px;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--secondary));
+            border-radius: 3px;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-accent);
+            position: relative;
+        }
+        
+        h2::before {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background: var(--accent);
+        }
+        
+        .section-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Card styles */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 24px 20px 18px 20px;
+            min-width: 280px;
+            max-width: 320px;
+            flex: 1 1 280px;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            text-decoration: none;
+            color: var(--text);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--light-accent);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+        
+        .card:hover, .card:focus {
+            box-shadow: 0 8px 24px rgba(44,62,80,0.15);
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+        
+        .card:hover::before {
+            width: 100%;
+            opacity: 0.1;
+        }
+        
+        .course-code {
+            display: inline-block;
+            padding: 0.3em 0.8em;
+            border-radius: 0.7em;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.7em;
+            letter-spacing: 1px;
+            background: linear-gradient(45deg, var(--accent), var(--secondary));
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .options {
+            background: linear-gradient(135deg, var(--light-accent), #ffffff);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .options i {
+            margin-right: 12px;
+            font-size: 1.3rem;
+            color: var(--accent);
+        }
+        
+        .options:hover, .options:focus {
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        /* Special AI Library Button */
+        .ai-library {
+            background: linear-gradient(135deg, rgba(74, 111, 165, 0.1), #ffffff);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #4a6fa5;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-left: 4px solid #4a6fa5;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ai-library::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(74, 111, 165, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .ai-library:hover::before {
+            left: 100%;
+        }
+        
+        .ai-library:hover, .ai-library:focus {
+            background: linear-gradient(135deg, #4a6fa5, #2c4c7c);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .ai-library i {
+            margin-right: 12px;
+            font-size: 1.3rem;
+            color: #4a6fa5;
+            transition: color 0.3s ease;
+        }
+        
+        .ai-library:hover i {
+            color: white;
+        }
+        
+        .ai-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4a6fa5;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(74, 111, 165, 0.3);
+        }
+        
+        .admin-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .edit-btn, .delete-btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .edit-btn {
+            background: var(--accent);
+        }
+        
+        .delete-btn {
+            background: #e53935;
+        }
+        
+        .edit-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .delete-btn:hover {
+            background: #c62828;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .edit-btn i, .delete-btn i {
+            margin-right: 6px;
+        }
+        
+        @media (max-width: 900px) {
+            main {
+                max-width: 98vw;
+                padding: 18px 4vw;
+            }
+            .section-content {
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .sidebar {
+                position: fixed;
+                width: 100vw;
+                height: 56px;
+                left: 0; top: 0; bottom: auto;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                padding: 0 8px;
+                box-shadow: 0 2px 12px rgba(44,62,80,0.07);
+                transition: height 0.3s, width 0.3s;
+            }
+            .sidebar img {
+                width: 36px;
+                height: 36px;
+                margin: 0 12px 0 0;
+            }
+            .sidebar ul {
+                display: flex;
+                flex-direction: row;
+                gap: 8px;
+                margin-left: 12px;
+            }
+            .sidebar ul a {
+                padding: 8px 12px;
+                border-radius: 8px;
+                font-size: 0.98rem;
+            }
+            .sidebar ul a li {
+                margin-left: 6px;
+            }
+            .sidebar.collapsed ul a li {
+                opacity: 0;
+                margin-left: 0;
+            }
+            #sidebar-toggle {
+                top: 64px;
+                left: 12px;
+            }
+            main {
+                margin-left: 0;
+                margin-top: 72px;
+                padding: 12px 2vw;
+            }
+            .section-content {
+                flex-direction: column;
+                gap: 0.7rem;
+            }
+            .card {
+                min-width: unset;
+                max-width: 100vw;
+                width: 100%;
+                padding: 16px 10px 12px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Biology-themed background elements -->
+    <div class="bio-bg">
+        <div class="bio-element cell" style="top: 10%; left: 5%; animation-delay: 0s;"></div>
+        <div class="bio-element dna" style="top: 20%; left: 15%; animation-delay: 2s;"></div>
+        <div class="bio-element leaf" style="top: 30%; left: 25%; animation-delay: 4s;"></div>
+        <div class="bio-element cell" style="top: 40%; left: 35%; animation-delay: 6s;"></div>
+        <div class="bio-element dna" style="top: 50%; left: 45%; animation-delay: 8s;"></div>
+        <div class="bio-element leaf" style="top: 60%; left: 55%; animation-delay: 10s;"></div>
+        <div class="bio-element cell" style="top: 70%; left: 65%; animation-delay: 12s;"></div>
+        <div class="bio-element dna" style="top: 80%; left: 75%; animation-delay: 14s;"></div>
+        <div class="bio-element leaf" style="top: 90%; left: 85%; animation-delay: 16s;"></div>
+        <div class="bio-element cell" style="top: 15%; left: 95%; animation-delay: 18s;"></div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <a href="{{ url_for('views.home') }}">
+            <img src="{{ url_for('static', filename='blacklogo.svg') }}" alt="logo">
+        </a>
+        <ul>
+            <a href="{{ url_for('views.home') }}"><li><i class="fas fa-home"></i> Dashboard</li></a>
+            <a href="{{ url_for('views.account_details') }}"><li><i class="fas fa-user"></i> My Profile</li></a>
+            <a href="{{ url_for('views.edit_details') }}"><li><i class="fas fa-cog"></i> Settings</li></a>
+            <a href="{{ url_for('auth.logout') }}" id="logout"><li><i class="fas fa-sign-out-alt"></i> Logout</li></a>
+        </ul>
+    </div>
+    
+    <button id="sidebar-toggle" aria-label="Toggle sidebar">
+        <span id="arrow">&#9776;</span>
+    </button>
+    
+    <main>
+        <h1>Your Biology Dashboard</h1>
+        
+        {% if current_user.user_type not in ['admin'] %}
+        <section>
+            {% if current_user.user_type in ['student'] %}
+            <h2><i class="fas fa-graduation-cap"></i> Enrolled Courses</h2>
+            {% endif %}
+            {% if current_user.user_type in ['teacher'] %}
+            <h2><i class="fas fa-chalkboard-teacher"></i> Instructor for Courses</h2>
+            {% endif %}
+            <div class="section-content">
+                {% for course in enrolled_courses %}
+                <a href="{{ url_for('views.course_page', course_id=course.id) }}">
+                    <div class="card">
+                        <h3 class="course-code">{{ course.course_code }}</h3>
+                        <h3>{{ course.course_name }}</h3>
+                        <p>{{ course.course_desc }}</p>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+        
+        {% if current_user.user_type in ['admin'] %}
+        <!-- All Courses Section -->
+        <section>
+            <h2><i class="fas fa-dna"></i> Created Courses</h2>
+            <div class="section-content">
+                {% for course in all_courses %}
+                <div class="card">
+                    <a href="{{ url_for('views.course_page', course_id=course.id) }}">
+                        <h3 class="course-code">{{ course.course_code }}</h3>
+                        <h3>{{ course.course_name }}</h3>
+                        <p>{{ course.course_desc }}</p>
+                    </a>
+                    <div class="admin-actions">
+                        <a href="{{ url_for('views.edit_course', course_id=course.id) }}" class="edit-btn">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <!-- Delete Form -->
+                        <form method="POST" action="{{ url_for('views.delete_course', course_id=course.id) }}" style="display: inline;">
+                            <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this course? This action cannot be undone.');">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+        
+        <!-- Other Cards Section -->
+        <section>
+            <h2><i class="fas fa-leaf"></i> Other Options</h2>
+            <div class="section-content">
+                <a href="{{ url_for('views.account_details') }}">
+                    <h3 class="card options"><i class="fas fa-user-circle"></i> Your Account Details</h3>
+                </a>
+                {% if current_user.user_type in ['student'] %}
+                <a href="{{ url_for('views.display_courses') }}">
+                    <h3 id="enroll_course_link" class="card options"><i class="fas fa-plus-circle"></i> Enroll in a New Course</h3>
+                </a>
+                {% endif %}
+                {% if current_user.user_type in ['admin'] %}
+                <a href="{{ url_for('views.createCourse') }}">
+                    <h3 id="create_course_link" class="card options"><i class="fas fa-flask"></i> Create a New Course</h3>
+                </a>
+                <a href="{{ url_for('views.display_requests') }}">
+                    <h3 class="card options"><i class="fas fa-tasks"></i> Manage Student Enrollment Requests</h3>
+                </a>
+                {% endif %}
+                <!-- AI Library Button -->
+                <a href="{{ url_for('views.public_library') }}">
+                    <h3 class="ai-library">
+                        <i class="fas fa-robot"></i> AI-Powered Library
+                        <span class="ai-badge">NEW</span>
+                    </h3>
+                </a>
+                <a href="{{ url_for('views.edit_details') }}">
+                    <h3 class="card options"><i class="fas fa-sliders-h"></i> Account Settings</h3>
+                </a>
+                <a href="{{ url_for('auth.logout') }}" id="logout">
+                    <h3 class="card options"><i class="fas fa-sign-out-alt"></i> Logout</h3>
+                </a>
+            </div>
+        </section>
+    </main>
+    
+    <script>
+        // Sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        const arrow = document.getElementById('arrow');
+        toggleBtn.onclick = function() {
+            sidebar.classList.toggle('collapsed');
+            if (sidebar.classList.contains('collapsed')) {
+                arrow.innerHTML = '&#9654;';
+            } else {
+                arrow.innerHTML = '&#9776;';
+            }
+        };
+        
+        // Colorful course codes
+        $(document).ready(function() {
+            const courseCodes = $(".course-code");
+            const colors = ["#2e7d32", "#388e3c", "#43a047", "#4caf50", "#66bb6a", "#81c784"];
+            for (let i = 0; i < courseCodes.length; i++) {
+                $(courseCodes[i]).css('backgroundColor', colors[i % colors.length]);
+            }
+            
+            // Add interactive animations to cards
+            $('.card').hover(
+                function() {
+                    $(this).find('.course-code').css('transform', 'scale(1.05)');
+                },
+                function() {
+                    $(this).find('.course-code').css('transform', 'scale(1)');
+                }
+            );
+            
+            // Add ripple effect to buttons
+            $('.edit-btn, .delete-btn, .options').on('click', function(e) {
+                const ripple = $('<span class="ripple"></span>');
+                const btnOffset = $(this).offset();
+                const x = e.pageX - btnOffset.left;
+                const y = e.pageY - btnOffset.top;
+                
+                ripple.css({
+                    top: y,
+                    left: x
+                });
+                
+                $(this).append(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+            
+            // Handle delete button confirmation
+            $('.delete-btn').on('click', function() {
+                const isConfirmed = confirm('Are you sure you want to delete this course? This action cannot be undone.');
+                if (!isConfirmed) {
+                    return false;
+                }
+                
+                // Show loading state
+                $(this).html('<i class="fas fa-spinner fa-spin"></i> Deleting...');
+                $(this).prop('disabled', true);
+            });
+            
+            // Special animation for AI Library button
+            $('.ai-library').hover(
+                function() {
+                    $(this).find('.ai-badge').css('transform', 'scale(1.1)');
+                },
+                function() {
+                    $(this).find('.ai-badge').css('transform', 'scale(1)');
+                }
+            );
+        });
+        
+        // Add dynamic biology elements
+        function createBioElement() {
+            const types = ['cell', 'dna', 'leaf'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            const element = document.createElement('div');
+            element.className = `bio-element ${type}`;
+            element.style.top = Math.random() * 100 + '%';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.animationDelay = Math.random() * 5 + 's';
+            element.style.animationDuration = (15 + Math.random() * 10) + 's';
+            
+            document.querySelector('.bio-bg').appendChild(element);
+            
+            setTimeout(() => {
+                element.remove();
+            }, 25000);
+        }
+        
+        // Create new bio elements periodically
+        setInterval(createBioElement, 3000);
+    </script>
+    
+    <style>
+        /* Ripple effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        /* Course code animation */
+        .course-code {
+            transition: transform 0.3s ease;
+        }
+    </style>
+</body>
+</html>

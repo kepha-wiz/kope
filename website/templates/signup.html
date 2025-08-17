@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - St. George Biology Class</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                        url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Biology Background Elements */
+        .bio-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bio-element {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+        
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #8bc34a, #4caf50);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .dna {
+            width: 30px;
+            height: 100px;
+            background: linear-gradient(to bottom, #4caf50, #8bc34a, #4caf50);
+            border-radius: 15px;
+            transform: rotate(45deg);
+        }
+        
+        .leaf {
+            width: 40px;
+            height: 60px;
+            background: #8bc34a;
+            border-radius: 0 100% 0 100%;
+            transform: rotate(45deg);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.1;
+            }
+            50% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0.1;
+            }
+        }
+        
+        /* Container Styles */
+        .container {
+            background-color: rgba(255, 255, 255, 0.92);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(76, 175, 80, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+            animation: pulse 8s infinite alternate;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.1); opacity: 0.1; }
+        }
+        
+        /* Header Styles */
+        .container h2 {
+            color: #2E7D32;
+            font-size: 28px;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .container h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 3px;
+        }
+        
+        /* Form Styles */
+        form {
+            text-align: left;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2E7D32;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        input[type="email"],
+        input[type="password"],
+        input[type="text"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
+        }
+        
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            border-color: #4CAF50;
+            background-color: #fff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+        
+        /* Password Toggle */
+        .password-container {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 43px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #4CAF50;
+            transition: color 0.3s;
+        }
+        
+        .toggle-password:hover {
+            color: #2E7D32;
+        }
+        
+        /* Radio Button Styles */
+        fieldset {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        legend {
+            color: #2E7D32;
+            font-weight: 600;
+            padding: 0 10px;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        
+        .radio-option:hover {
+            background-color: #f1f8e9;
+        }
+        
+        .radio-option input[type="radio"] {
+            margin-right: 10px;
+            accent-color: #4CAF50;
+        }
+        
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        input[type="submit"],
+        input[type="button"] {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="submit"] {
+            background: linear-gradient(to right, #4CAF50, #388E3C);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        input[type="submit"]:hover {
+            background: linear-gradient(to right, #388E3C, #2E7D32);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        input[type="button"] {
+            background: #f5f5f5;
+            color: #555;
+            border: 2px solid #e0e0e0;
+        }
+        
+        input[type="button"]:hover {
+            background: #eeeeee;
+            transform: translateY(-2px);
+        }
+        
+        /* Biology Decorations */
+        .bio-decoration {
+            position: absolute;
+            opacity: 0.1;
+            z-index: 1;
+        }
+        
+        .bio-decoration-1 {
+            top: 20px;
+            right: 20px;
+            font-size: 60px;
+            color: #4CAF50;
+            transform: rotate(15deg);
+        }
+        
+        .bio-decoration-2 {
+            bottom: 20px;
+            left: 20px;
+            font-size: 60px;
+            color: #4CAF50;
+            transform: rotate(-15deg);
+        }
+        
+        /* Alert Styles */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        .alert-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+        
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        .alert i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+                margin: 20px;
+                max-width: 90%;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .bio-decoration-1, .bio-decoration-2 {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Biology-themed background elements -->
+    <div class="bio-bg">
+        <div class="bio-element cell" style="top: 10%; left: 5%; animation-delay: 0s;"></div>
+        <div class="bio-element dna" style="top: 20%; left: 15%; animation-delay: 2s;"></div>
+        <div class="bio-element leaf" style="top: 30%; left: 25%; animation-delay: 4s;"></div>
+        <div class="bio-element cell" style="top: 40%; left: 35%; animation-delay: 6s;"></div>
+        <div class="bio-element dna" style="top: 50%; left: 45%; animation-delay: 8s;"></div>
+        <div class="bio-element leaf" style="top: 60%; left: 55%; animation-delay: 10s;"></div>
+        <div class="bio-element cell" style="top: 70%; left: 65%; animation-delay: 12s;"></div>
+        <div class="bio-element dna" style="top: 80%; left: 75%; animation-delay: 14s;"></div>
+        <div class="bio-element leaf" style="top: 90%; left: 85%; animation-delay: 16s;"></div>
+        <div class="bio-element cell" style="top: 15%; left: 95%; animation-delay: 18s;"></div>
+    </div>
+    
+    <div class="container">
+        <div class="bio-decoration bio-decoration-1">
+            <i class="fas fa-dna"></i>
+        </div>
+        <div class="bio-decoration bio-decoration-2">
+            <i class="fas fa-leaf"></i>
+        </div>
+        
+        <h2>Sign Up</h2>
+        
+        <!-- Display flashed messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <i class="fas fa-{% if category == 'error' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="">
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> Email:</label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email">
+            </div>
+            
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> Password:</label>
+                <div class="password-container">
+                    <input type="password" id="password" name="password" required
+                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).{8,}"
+                        title="Password must contain at least one number, one uppercase letter, one lowercase letter, one special character, and at least 8 or more characters"
+                        placeholder="Enter your password">
+                    <span class="toggle-password" onclick="togglePasswordVisibility('password')"><i class="fas fa-eye"></i></span>
+                </div>
+            </div>
+            
+            <!-- Confirm Password Field -->
+            <div class="form-group">
+                <label for="confirmPassword"><i class="fas fa-lock"></i> Confirm Password:</label>
+                <div class="password-container">
+                    <input type="password" id="confirmPassword" name="confirmPassword" required
+                        title="Must match the password entered above."
+                        placeholder="Confirm your password">
+                    <span class="toggle-password" onclick="togglePasswordVisibility('confirmPassword')"><i class="fas fa-eye"></i></span>
+                </div>
+            </div>
+            
+            <!-- First Name Field -->
+            <div class="form-group">
+                <label for="firstName"><i class="fas fa-user"></i> First Name:</label>
+                <input type="text" id="firstName" name="firstName" required placeholder="Enter your first name">
+            </div>
+            
+            <!-- Last Name Field -->
+            <div class="form-group">
+                <label for="lastName"><i class="fas fa-user"></i> Last Name:</label>
+                <input type="text" id="lastName" name="lastName" required placeholder="Enter your last name">
+            </div>
+            
+            <!-- Date of Birth Field -->
+            <div class="form-group">
+                <label for="dob"><i class="fas fa-calendar-alt"></i> Date of Birth:</label>
+                <input type="date" id="dob" name="dob" required title="You must be at least 18 years old.">
+            </div>
+            
+            <!-- Student Level Field -->
+            <div class="form-group">
+                <label for="student_level"><i class="fas fa-graduation-cap"></i> Student Level:</label>
+                <select name="student_level" id="student_level">
+                    <option value="">--Select Level--</option>
+                    <option value="lower_secondary">Lower Secondary</option>
+                    <option value="advanced">Advanced Level</option>
+                </select>
+            </div>
+            
+            <!-- User Type Selection -->
+            <div class="form-group">
+                <fieldset>
+                    <legend><i class="fas fa-user-tag"></i> User Type:</legend>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="student" name="user_type" value="student" required>
+                            <label for="student">Student</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="teacher" name="user_type" value="teacher">
+                            <label for="teacher">Teacher</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="admin" name="user_type" value="admin">
+                            <label for="admin">Admin</label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            
+            <!-- Buttons -->
+            <div class="button-group">
+                <input type="submit" id="create_account_button" value="Sign Up">
+                <input type="button" id="cancel_button" value="Cancel" onclick="window.location.href='/login'">
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        function togglePasswordVisibility(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            const toggleIcon = passwordField.nextElementSibling.querySelector('i');
+            
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = "password";
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+        
+        // Function to add constraint to DOB field
+        $(document).ready(function() {
+            const dob = $("#dob");
+            const today = new Date();
+            const cutoffDate = new Date(today);
+            cutoffDate.setFullYear(today.getFullYear() - 17); // User must be at least 17 years old
+            
+            // Set max attribute to today's date
+            dob.attr("max", today.toISOString().split("T")[0]);
+            
+            dob.on("input", function() {
+                const selectedDate = new Date(this.value);
+                if (selectedDate > cutoffDate) {
+                    this.setCustomValidity("You must be at least 17 years old.");
+                } else {
+                    this.setCustomValidity("");
+                }
+            });
+            
+            // Password and Confirm Password validation
+            const password = $("#password");
+            const confirmPassword = $("#confirmPassword");
+            
+            function validatePasswords() {
+                if (password.val() !== confirmPassword.val()) {
+                    confirmPassword[0].setCustomValidity("Passwords do not match.");
+                } else {
+                    confirmPassword[0].setCustomValidity("");
+                }
+            }
+            
+            password.on("input", validatePasswords);
+            confirmPassword.on("input", validatePasswords);
+            
+            // Form submission
+            $("form").on("submit", function(e) {
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Add loading state to submit button
+                const submitButton = $("#create_account_button");
+                submitButton.val("Creating Account...");
+                submitButton.prop("disabled", true);
+                
+                return true;
+            });
+            
+            // Add dynamic biology elements
+            function createBioElement() {
+                const types = ['cell', 'dna', 'leaf'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                const element = document.createElement('div');
+                element.className = `bio-element ${type}`;
+                element.style.top = Math.random() * 100 + '%';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 5 + 's';
+                element.style.animationDuration = (15 + Math.random() * 10) + 's';
+                
+                document.querySelector('.bio-bg').appendChild(element);
+                
+                setTimeout(() => {
+                    element.remove();
+                }, 25000);
+            }
+            
+            // Create new bio elements periodically
+            setInterval(createBioElement, 3000);
+        });
+    </script>
+</body>
+</html>

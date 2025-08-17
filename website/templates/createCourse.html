@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Course - St. George Biology Class</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                        url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #222;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Biology Background Elements */
+        .bio-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bio-element {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+        
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #8bc34a, #4caf50);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .dna {
+            width: 30px;
+            height: 100px;
+            background: linear-gradient(to bottom, #4caf50, #8bc34a, #4caf50);
+            border-radius: 15px;
+            transform: rotate(45deg);
+        }
+        
+        .leaf {
+            width: 40px;
+            height: 60px;
+            background: #8bc34a;
+            border-radius: 0 100% 0 100%;
+            transform: rotate(45deg);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.1;
+            }
+            50% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0.1;
+            }
+        }
+        
+        /* Main Container */
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        main::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(76, 175, 80, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+            animation: pulse 8s infinite alternate;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.1); opacity: 0.1; }
+        }
+        
+        /* Header Styles */
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+        
+        h1 {
+            color: #2E7D32;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 3px;
+        }
+        
+        .subtitle {
+            color: #555;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Form Styles */
+        .form-container {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 5px solid #4CAF50;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .form-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .form-item.full-width {
+            grid-column: span 2;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #2E7D32;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        label i {
+            margin-right: 10px;
+            color: #4CAF50;
+        }
+        
+        input[type="text"], 
+        input[type="number"], 
+        input[type="url"], 
+        textarea, 
+        select, 
+        input[type="file"] {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-top: 0.2rem;
+            background-color: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="text"]:focus, 
+        input[type="number"]:focus, 
+        input[type="url"]:focus, 
+        textarea:focus, 
+        select:focus, 
+        input[type="file"]:focus {
+            border-color: #4CAF50;
+            background-color: #fff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        /* File Upload Styling */
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            border: 2px dashed #4CAF50;
+            border-radius: 10px;
+            background-color: #f1f8e9;
+            color: #2E7D32;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload-label:hover {
+            background-color: #e8f5e9;
+        }
+        
+        .file-upload-label i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        /* Button Styles */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        button[type="submit"] {
+            padding: 0.8rem 2.5rem;
+            background: linear-gradient(to right, #4CAF50, #388E3C);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button[type="submit"]:hover {
+            background: linear-gradient(to right, #388E3C, #2E7D32);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        button[type="submit"] i {
+            margin-right: 8px;
+        }
+        
+        /* Back Button Styles */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            margin: 1rem 0 0 1rem;
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(to right, #4CAF50, #388E3C);
+            color: #fff;
+            border-radius: 50px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .back-button:hover {
+            background: linear-gradient(to right, #388E3C, #2E7D32);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+        }
+        
+        .back-button i {
+            margin-right: 8px;
+        }
+        
+        /* Biology Decorations */
+        .bio-decoration {
+            position: absolute;
+            opacity: 0.1;
+            z-index: 1;
+        }
+        
+        .bio-decoration-1 {
+            top: 20px;
+            right: 20px;
+            font-size: 60px;
+            color: #4CAF50;
+            transform: rotate(15deg);
+        }
+        
+        .bio-decoration-2 {
+            bottom: 20px;
+            left: 20px;
+            font-size: 60px;
+            color: #4CAF50;
+            transform: rotate(-15deg);
+        }
+        
+        /* Alert Styles */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            animation: slideDown 0.5s ease-out;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            min-width: 300px;
+            max-width: 500px;
+        }
+        
+        .alert-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+        
+        .alert i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translate(-50%, -20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        
+        /* Course Code Format Helper */
+        .format-helper {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.3rem;
+            font-style: italic;
+        }
+        
+        /* Progress Indicator */
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .progress-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #e0e0e0;
+            z-index: 1;
+        }
+        
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .step-label {
+            font-size: 0.85rem;
+            color: #666;
+            text-align: center;
+        }
+        
+        .progress-step.active .step-circle {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .progress-step.active .step-label {
+            color: #2E7D32;
+            font-weight: 600;
+        }
+        
+        /* Form Section Headers */
+        .form-section {
+            margin-bottom: 2rem;
+        }
+        
+        .form-section-title {
+            font-size: 1.2rem;
+            color: #2E7D32;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-section-title i {
+            margin-right: 10px;
+            color: #4CAF50;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            main {
+                max-width: 98vw;
+                padding: 1.5rem;
+                border-radius: 12px;
+                margin: 1rem;
+            }
+            
+            .form-container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .back-button {
+                margin: 0.5rem 0 0 0.5rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-item.full-width {
+                grid-column: span 1;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            main {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.7rem;
+            }
+            
+            .form-container {
+                padding: 1rem;
+            }
+            
+            .form-item {
+                margin-bottom: 1rem;
+            }
+            
+            .bio-decoration-1, .bio-decoration-2 {
+                font-size: 40px;
+            }
+            
+            .progress-step .step-label {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Biology-themed background elements -->
+    <div class="bio-bg">
+        <div class="bio-element cell" style="top: 10%; left: 5%; animation-delay: 0s;"></div>
+        <div class="bio-element dna" style="top: 20%; left: 15%; animation-delay: 2s;"></div>
+        <div class="bio-element leaf" style="top: 30%; left: 25%; animation-delay: 4s;"></div>
+        <div class="bio-element cell" style="top: 40%; left: 35%; animation-delay: 6s;"></div>
+        <div class="bio-element dna" style="top: 50%; left: 45%; animation-delay: 8s;"></div>
+        <div class="bio-element leaf" style="top: 60%; left: 55%; animation-delay: 10s;"></div>
+        <div class="bio-element cell" style="top: 70%; left: 65%; animation-delay: 12s;"></div>
+        <div class="bio-element dna" style="top: 80%; left: 75%; animation-delay: 14s;"></div>
+        <div class="bio-element leaf" style="top: 90%; left: 85%; animation-delay: 16s;"></div>
+        <div class="bio-element cell" style="top: 15%; left: 95%; animation-delay: 18s;"></div>
+    </div>
+    {% include 'sidebar.html' %}
+    
+    <a href="{{ url_for('views.home') }}" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+    
+    <main>
+        <div class="bio-decoration bio-decoration-1">
+            <i class="fas fa-dna"></i>
+        </div>
+        <div class="bio-decoration bio-decoration-2">
+            <i class="fas fa-leaf"></i>
+        </div>
+        
+        <div class="header">
+            <h1><i class="fas fa-graduation-cap"></i> Create Course</h1>
+            <p class="subtitle">Set up a new biology course with all the necessary information</p>
+        </div>
+        
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+            <div class="progress-step active">
+                <div class="step-circle">1</div>
+                <div class="step-label">Basic Info</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-circle">2</div>
+                <div class="step-label">Details</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-circle">3</div>
+                <div class="step-label">Resources</div>
+            </div>
+        </div>
+        
+        <form method="POST" action="{{ url_for('views.createCourse') }}" enctype="multipart/form-data" id="createCourseForm" class="form-container">
+            <!-- Basic Information Section -->
+            <div class="form-section">
+                <h2 class="form-section-title">
+                    <i class="fas fa-info-circle"></i> Basic Information
+                </h2>
+                
+                <div class="form-grid">
+                    <div class="form-item">
+                        <label for="course_code"><i class="fas fa-barcode"></i> Course Code</label>
+                        <input type="text" id="course_code" name="course_code" required placeholder="e.g., BIOL101">
+                        <div class="format-helper">Format: Four uppercase letters followed by three digits (e.g., BIOL101)</div>
+                    </div>
+                    
+                    <div class="form-item">
+                        <label for="course_name"><i class="fas fa-book"></i> Course Name</label>
+                        <input type="text" id="course_name" name="course_name" required placeholder="Enter course name">
+                    </div>
+                </div>
+                
+                <div class="form-item full-width">
+                    <label for="course_desc"><i class="fas fa-align-left"></i> Course Description</label>
+                    <textarea id="course_desc" name="course_desc" rows="3" required placeholder="Enter course description"></textarea>
+                </div>
+            </div>
+            
+            <!-- Details Section -->
+            <div class="form-section">
+                <h2 class="form-section-title">
+                    <i class="fas fa-cog"></i> Course Details
+                </h2>
+                
+                <div class="form-grid">
+                    <div class="form-item">
+                        <label for="course_limit"><i class="fas fa-users"></i> Course Limit</label>
+                        <input type="number" id="course_limit" name="course_limit" required min="1" placeholder="Maximum number of students">
+                    </div>
+                    
+                    <div class="form-item">
+                        <label for="teacher_id"><i class="fas fa-chalkboard-teacher"></i> Teacher</label>
+                        <select id="teacher_id" name="teacher_id" required>
+                            <option value="">--Select Teacher--</option>
+                            {% for teacher in teachers %}
+                                <option value="{{ teacher.id }}">{{ teacher.first_name }} {{ teacher.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-item">
+                        <label for="target_level"><i class="fas fa-graduation-cap"></i> Course Level</label>
+                        <select name="target_level" id="target_level" required>
+                            <option value="">--Select Level--</option>
+                            <option value="lower_secondary">Lower Secondary</option>
+                            <option value="advanced">Advanced Level</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resources Section -->
+            <div class="form-section">
+                <h2 class="form-section-title">
+                    <i class="fas fa-folder-open"></i> Resources
+                </h2>
+                
+                <div class="form-grid">
+                    <div class="form-item">
+                        <label for="resources"><i class="fas fa-file-upload"></i> Upload Course Files</label>
+                        <div class="file-upload">
+                            <input type="file" id="resources" name="resources" accept=".pdf,.docx,.pptx,.zip,.jpg,.png">
+                            <label for="resources" class="file-upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Choose files or drag here</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-item">
+                        <label for="resource_link"><i class="fas fa-link"></i> External Resource Link</label>
+                        <input type="url" id="resource_link" name="resource_link" placeholder="https://example.com">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-container">
+                <button type="submit" id="create_course_button">
+                    <i class="fas fa-plus-circle"></i> Create Course
+                </button>
+            </div>
+        </form>
+    </main>
+    
+    <script>
+        $(document).ready(function() {
+            // Add dynamic biology elements
+            function createBioElement() {
+                const types = ['cell', 'dna', 'leaf'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                const element = document.createElement('div');
+                element.className = `bio-element ${type}`;
+                element.style.top = Math.random() * 100 + '%';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 5 + 's';
+                element.style.animationDuration = (15 + Math.random() * 10) + 's';
+                
+                document.querySelector('.bio-bg').appendChild(element);
+                
+                setTimeout(() => {
+                    element.remove();
+                }, 25000);
+            }
+            
+            // Create new bio elements periodically
+            setInterval(createBioElement, 3000);
+            
+            // Add input focus effects
+            $('input, textarea, select').focus(function() {
+                $(this).parent('.form-item').css('transform', 'scale(1.02)');
+            }).blur(function() {
+                $(this).parent('.form-item').css('transform', 'scale(1)');
+            });
+            
+            // File upload label update
+            $('#resources').on('change', function() {
+                const fileName = $(this).val().split('\\').pop();
+                if (fileName) {
+                    $('.file-upload-label span').text(fileName);
+                } else {
+                    $('.file-upload-label span').text('Choose files or drag here');
+                }
+            });
+            
+            // Course code validation with custom alert
+            $('#createCourseForm').on('submit', function(e) {
+                const courseCode = $('#course_code').val();
+                const regex = /^[A-Z]{4}\d{3}$/;
+                
+                if (!regex.test(courseCode)) {
+                    e.preventDefault();
+                    
+                    // Create custom alert instead of browser alert
+                    const alertDiv = $(`
+                        <div class="alert alert-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Invalid Course Code. The correct format is four uppercase letters followed by three digits (e.g., BIOL101).</span>
+                        </div>
+                    `);
+                    
+                    $('body').append(alertDiv);
+                    
+                    // Auto-remove alert after 5 seconds
+                    setTimeout(() => {
+                        alertDiv.fadeOut(500, function() {
+                            $(this).remove();
+                        });
+                    }, 5000);
+                    
+                    return false;
+                }
+                
+                // Add loading state to submit button
+                const submitBtn = $('#create_course_button');
+                submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Creating Course...');
+                submitBtn.prop('disabled', true);
+                
+                // Reset button after form submission (in case of validation errors)
+                setTimeout(() => {
+                    submitBtn.html('<i class="fas fa-plus-circle"></i> Create Course');
+                    submitBtn.prop('disabled', false);
+                }, 3000);
+                
+                return true;
+            });
+        });
+    </script>
+</body>
+</html>

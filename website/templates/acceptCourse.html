@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accept Enrollment Requests - St. George Biology Class</title>
+    <script src="https://ajax.googleapis.com/ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                        url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #222;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Biology Background Elements */
+        .bio-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bio-element {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+        
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #8bc34a, #4caf50);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .dna {
+            width: 30px;
+            height: 100px;
+            background: linear-gradient(to bottom, #4caf50, #8bc34a, #4caf50);
+            border-radius: 15px;
+            transform: rotate(45deg);
+        }
+        
+        .leaf {
+            width: 40px;
+            height: 60px;
+            background: #8bc34a;
+            border-radius: 0 100% 0 100%;
+            transform: rotate(45deg);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.1;
+            }
+            50% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0.1;
+            }
+        }
+        
+        /* Main Container */
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        main::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(76, 175, 80, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+            animation: pulse 8s infinite alternate;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.1); opacity: 0.1; }
+        }
+        
+        /* Header Styles */
+        h1 {
+            color: #2E7D32;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 3px;
+        }
+        
+        /* Request Container */
+        .requestContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        /* Card Styles */
+        .card {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            padding: 1.8rem;
+            margin-bottom: 0.5rem;
+            border-left: 5px solid #4CAF50;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(76, 175, 80, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            transform: translateY(-5px);
+            border-left-color: #8BC34A;
+        }
+        
+        .card:hover::before {
+            opacity: 0.1;
+        }
+        
+        .card h3 {
+            color: #2E7D32;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card h3 i {
+            margin-right: 10px;
+            color: #4CAF50;
+        }
+        
+        .card p {
+            margin-bottom: 1.2rem;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Form Styles */
+        .req-action-form {
+            display: inline-block;
+            margin-right: 0.7rem;
+        }
+        
+        .acceptButton, .declineButton {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .acceptButton {
+            background: linear-gradient(to right, #4CAF50, #388E3C);
+            color: #fff;
+            margin-right: 0.5rem;
+        }
+        
+        .acceptButton:hover {
+            background: linear-gradient(to right, #388E3C, #2E7D32);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+        }
+        
+        .declineButton {
+            background: linear-gradient(to right, #f44336, #d32f2f);
+            color: #fff;
+        }
+        
+        .declineButton:hover {
+            background: linear-gradient(to right, #d32f2f, #b71c1c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(244, 67, 54, 0.3);
+        }
+        
+        .acceptButton i, .declineButton i {
+            margin-right: 8px;
+        }
+        
+        /* Back Button Styles */
+        .back-button {
+            display: inline-block;
+            margin: 1rem 0 0 1rem;
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(to right, #4CAF50, #388E3C);
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .back-button:hover {
+            background: linear-gradient(to right, #388E3C, #2E7D32);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+        }
+        
+        .back-button i {
+            margin-right: 8px;
+        }
+        
+        /* Toast Notification Styles */
+        #toastBox {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+        }
+        
+        .toast {
+            min-width: 250px;
+            margin-bottom: 0.7rem;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0.95;
+            animation: slideInRight 0.3s, fadeOut 0.3s 1.7s;
+            animation-fill-mode: forwards;
+            display: flex;
+            align-items: center;
+        }
+        
+        .toast.accept {
+            background: linear-gradient(to right, #4CAF50, #388E3C);
+        }
+        
+        .toast.decline {
+            background: linear-gradient(to right, #f44336, #d32f2f);
+        }
+        
+        .toast i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 0.95; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 0.95; }
+            to { opacity: 0; }
+        }
+        
+        /* Biology Decorations */
+        .bio-decoration {
+            position: absolute;
+            opacity: 0.1;
+            z-index: 1;
+        }
+        
+        .bio-decoration-1 {
+            top: 20px;
+            right: 20px;
+            font-size: 60px;
+            color: #4CAF50;
+            transform: rotate(15deg);
+        }
+        
+        .bio-decoration-2 {
+            bottom: 20px;
+            left: 20px;
+            font-size: 60px;
+            color: #4CAF50;
+            transform: rotate(-15deg);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: #4CAF50;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2E7D32;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            main {
+                max-width: 98vw;
+                padding: 1.5rem;
+                border-radius: 12px;
+                margin: 1rem;
+            }
+            
+            .card {
+                padding: 1.2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .back-button {
+                margin: 0.5rem 0 0 0.5rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .req-action-form {
+                display: block;
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+            
+            .acceptButton, .declineButton {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            main {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.7rem;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .bio-decoration-1, .bio-decoration-2 {
+                font-size: 40px;
+            }
+            
+            #toastBox {
+                right: 0.5rem;
+                top: 0.5rem;
+            }
+            
+            .toast {
+                min-width: 200px;
+                padding: 0.8rem 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Biology-themed background elements -->
+    <div class="bio-bg">
+        <div class="bio-element cell" style="top: 10%; left: 5%; animation-delay: 0s;"></div>
+        <div class="bio-element dna" style="top: 20%; left: 15%; animation-delay: 2s;"></div>
+        <div class="bio-element leaf" style="top: 30%; left: 25%; animation-delay: 4s;"></div>
+        <div class="bio-element cell" style="top: 40%; left: 35%; animation-delay: 6s;"></div>
+        <div class="bio-element dna" style="top: 50%; left: 45%; animation-delay: 8s;"></div>
+        <div class="bio-element leaf" style="top: 60%; left: 55%; animation-delay: 10s;"></div>
+        <div class="bio-element cell" style="top: 70%; left: 65%; animation-delay: 12s;"></div>
+        <div class="bio-element dna" style="top: 80%; left: 75%; animation-delay: 14s;"></div>
+        <div class="bio-element leaf" style="top: 90%; left: 85%; animation-delay: 16s;"></div>
+        <div class="bio-element cell" style="top: 15%; left: 95%; animation-delay: 18s;"></div>
+    </div>
+
+    {% include 'sidebar.html' %}
+    
+    <a href="{{ url_for('views.home') }}" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+    
+    <main>
+        <div class="bio-decoration bio-decoration-1">
+            <i class="fas fa-dna"></i>
+        </div>
+        <div class="bio-decoration bio-decoration-2">
+            <i class="fas fa-leaf"></i>
+        </div>
+        
+        <h1><i class="fas fa-user-graduate"></i> Accept Enrollment Requests</h1>
+        
+        <div class="requestContainer">
+            {% if requests %}
+                {% for req in requests %}
+                    {% if req.status == 'pending' %}
+                        <div class="card">
+                            <h3><i class="fas fa-book"></i> Course Code: {{ req.course_code }}</h3>
+                            <p>Student <strong>{{ req.first_name }} {{ req.last_name }}</strong> (ID: {{ req.user_id }}) has requested to enroll in this course.</p>
+                            <div class="req-action-container">
+                                <form method="POST" action="{{ url_for('views.acceptRequest') }}" class="req-action-form">
+                                    <input type="hidden" name="course_id" value="{{ req.course_id }}">
+                                    <input type="hidden" name="user_id" value="{{ req.user_id }}">
+                                    <button type="submit" class="acceptButton">
+                                        <i class="fas fa-check"></i> Accept
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('views.declineRequest') }}" class="req-action-form">
+                                    <input type="hidden" name="course_id" value="{{ req.course_id }}">
+                                    <input type="hidden" name="user_id" value="{{ req.user_id }}">
+                                    <button type="submit" class="declineButton">
+                                        <i class="fas fa-times"></i> Decline
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Pending Requests</h3>
+                    <p>There are no pending enrollment requests at this time.</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+    
+    <div id="toastBox"></div>
+    
+    <script>
+        $(document).ready(function() {
+            // Add dynamic biology elements
+            function createBioElement() {
+                const types = ['cell', 'dna', 'leaf'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                const element = document.createElement('div');
+                element.className = `bio-element ${type}`;
+                element.style.top = Math.random() * 100 + '%';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 5 + 's';
+                element.style.animationDuration = (15 + Math.random() * 10) + 's';
+                
+                document.querySelector('.bio-bg').appendChild(element);
+                
+                setTimeout(() => {
+                    element.remove();
+                }, 25000);
+            }
+            
+            // Create new bio elements periodically
+            setInterval(createBioElement, 3000);
+            
+            // Toast notification function
+            let toastBox = $('#toastBox');
+            function showToast(message, type) {
+                let toast = $(`
+                    <div class="toast ${type}">
+                        <i class="fas fa-${type === 'accept' ? 'check-circle' : 'times-circle'}"></i>
+                        <span>${message}</span>
+                    </div>
+                `);
+                toastBox.append(toast);
+                
+                // Auto-remove toast after animation completes
+                setTimeout(function() {
+                    toast.remove();
+                }, 2000);
+            }
+            
+            // Handle accept button click
+            $('.acceptButton').on('click', function(event) {
+                event.preventDefault();
+                showToast("Request Accepted", "accept");
+                
+                let form = $(this).closest('form');
+                setTimeout(function() {
+                    if (form) form.submit();
+                }, 2000);
+            });
+            
+            // Handle decline button click
+            $('.declineButton').on('click', function(event) {
+                event.preventDefault();
+                showToast("Request Declined", "decline");
+                
+                let form = $(this).closest('form');
+                setTimeout(function() {
+                    if (form) form.submit();
+                }, 2000);
+            });
+            
+            // Add hover effect to cards
+            $('.card').hover(
+                function() {
+                    $(this).find('h3 i').css('transform', 'scale(1.2)');
+                },
+                function() {
+                    $(this).find('h3 i').css('transform', 'scale(1)');
+                }
+            );
+        });
+    </script>
+</body>
+</html>

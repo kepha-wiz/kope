@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Library Resource - St. George Biology Class</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                        url('https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        /* Biology Background Elements */
+        .bio-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bio-element {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+        
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #8bc34a, #4caf50);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .dna {
+            width: 30px;
+            height: 100px;
+            background: linear-gradient(to bottom, #4caf50, #8bc34a, #4caf50);
+            border-radius: 15px;
+            transform: rotate(45deg);
+        }
+        
+        .leaf {
+            width: 40px;
+            height: 60px;
+            background: #8bc34a;
+            border-radius: 0 100% 0 100%;
+            transform: rotate(45deg);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.1;
+            }
+            50% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0.1;
+            }
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(76, 175, 80, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: -1;
+            animation: pulse 8s infinite alternate;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.1); opacity: 0.1; }
+        }
+        
+        /* Header Styles */
+        h1 {
+            color: #2E7D32;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 25%;
+            width: 50%;
+            height: 3px;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 3px;
+        }
+        
+        /* Form Styles */
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #2E7D32;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        label i {
+            margin-right: 10px;
+            color: #4CAF50;
+        }
+        
+        input[type="text"],
+        input[type="file"],
+        select,
+        textarea {
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            background-color: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #4CAF50;
+            background-color: #fff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        /* File Upload Styles */
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border: 2px dashed #4CAF50;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .file-upload-label:hover {
+            background-color: #e8f5e9;
+            border-color: #388E3C;
+        }
+        
+        .file-upload-label i {
+            font-size: 3rem;
+            color: #4CAF50;
+            margin-bottom: 1rem;
+        }
+        
+        .file-upload-text {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .file-upload-text small {
+            display: block;
+            margin-top: 0.5rem;
+            color: #999;
+        }
+        
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .submit-btn, .cancel-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(to right, #4CAF50, #388E3C);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .cancel-btn {
+            background: #f5f5f5;
+            color: #666;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .submit-btn:hover {
+            background: linear-gradient(to right, #388E3C, #2E7D32);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .cancel-btn:hover {
+            background: #eeeeee;
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn i, .cancel-btn i {
+            margin-right: 8px;
+        }
+        
+        /* Supported Formats */
+        .supported-formats {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4CAF50;
+            padding: 1rem;
+            border-radius: 0 10px 10px 0;
+            margin-top: 1rem;
+        }
+        
+        .supported-formats h3 {
+            color: #2E7D32;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .supported-formats p {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        /* Biology Decorations */
+        .bio-decoration {
+            position: absolute;
+            opacity: 0.1;
+            z-index: 1;
+        }
+        
+        .bio-decoration-1 {
+            top: 20px;
+            right: 20px;
+            font-size: 60px;
+            color: #4CAF50;
+            transform: rotate(15deg);
+        }
+        
+        .bio-decoration-2 {
+            bottom: 20px;
+            left: 20px;
+            font-size: 60px;
+            color: #4CAF50;
+            transform: rotate(-15deg);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.7rem;
+            }
+            
+            .bio-decoration-1, .bio-decoration-2 {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Biology-themed background elements -->
+    <div class="bio-bg">
+        <div class="bio-element cell" style="top: 10%; left: 5%; animation-delay: 0s;"></div>
+        <div class="bio-element dna" style="top: 20%; left: 15%; animation-delay: 2s;"></div>
+        <div class="bio-element leaf" style="top: 30%; left: 25%; animation-delay: 4s;"></div>
+        <div class="bio-element cell" style="top: 40%; left: 35%; animation-delay: 6s;"></div>
+        <div class="bio-element dna" style="top: 50%; left: 45%; animation-delay: 8s;"></div>
+        <div class="bio-element leaf" style="top: 60%; left: 55%; animation-delay: 10s;"></div>
+        <div class="bio-element cell" style="top: 70%; left: 65%; animation-delay: 12s;"></div>
+        <div class="bio-element dna" style="top: 80%; left: 75%; animation-delay: 14s;"></div>
+        <div class="bio-element leaf" style="top: 90%; left: 85%; animation-delay: 16s;"></div>
+        <div class="bio-element cell" style="top: 15%; left: 95%; animation-delay: 18s;"></div>
+    </div>
+
+    {% include 'sidebar.html' %}
+    
+    <div class="container">
+        <div class="bio-decoration bio-decoration-1">
+            <i class="fas fa-dna"></i>
+        </div>
+        <div class="bio-decoration bio-decoration-2">
+            <i class="fas fa-leaf"></i>
+        </div>
+        
+        <h1><i class="fas fa-upload"></i> Upload Library Resource</h1>
+        
+        <form method="POST" class="upload-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title"><i class="fas fa-heading"></i> Title</label>
+                <input type="text" id="title" name="title" required placeholder="Enter resource title">
+            </div>
+            
+            <div class="form-group">
+                <label for="description"><i class="fas fa-align-left"></i> Description</label>
+                <textarea id="description" name="description" required placeholder="Enter resource description"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="type"><i class="fas fa-tag"></i> Resource Type</label>
+                <select id="type" name="type" required>
+                    <option value="">--Select Type--</option>
+                    <option value="E-Book">E-Book</option>
+                    <option value="Research Paper">Research Paper</option>
+                    <option value="Video Course">Video Course</option>
+                    <option value="Lab Manual">Lab Manual</option>
+                    <option value="Presentation">Presentation</option>
+                    <option value="Dataset">Dataset</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="category"><i class="fas fa-folder"></i> Category</label>
+                <select id="category" name="category" required>
+                    <option value="">--Select Category--</option>
+                    <option value="Biology">Biology</option>
+                    <option value="Genetics">Genetics</option>
+                    <option value="Ecology">Ecology</option>
+                    <option value="Microbiology">Microbiology</option>
+                    <option value="Biochemistry">Biochemistry</option>
+                    <option value="Evolution">Evolution</option>
+                    <option value="Botany">Botany</option>
+                    <option value="Zoology">Zoology</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="author"><i class="fas fa-user"></i> Author</label>
+                <input type="text" id="author" name="author" required placeholder="Enter author name">
+            </div>
+            
+            <div class="form-group">
+                <label for="tags"><i class="fas fa-hashtag"></i> Tags</label>
+                <input type="text" id="tags" name="tags" placeholder="Enter tags separated by commas">
+            </div>
+            
+            <div class="form-group">
+                <label for="ai_summary"><i class="fas fa-brain"></i> AI Summary</label>
+                <textarea id="ai_summary" name="ai_summary" placeholder="Enter AI-generated summary of the resource"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="file"><i class="fas fa-file-upload"></i> Upload File</label>
+                <div class="file-upload">
+                    <input type="file" id="file" name="file" required>
+                    <label for="file" class="file-upload-label">
+                        <div>
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div class="file-upload-text">
+                                Click to upload or drag and drop
+                                <small>Supports all file formats</small>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="supported-formats">
+                <h3><i class="fas fa-info-circle"></i> Supported File Formats</h3>
+                <p>All file formats are supported including: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, JPG, PNG, GIF, MP4, MP3, WAV, ZIP, RAR, and many more. There are no file size restrictions.</p>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-upload"></i> Upload Resource
+                </button>
+                <a href="{{ url_for('views.public_library') }}" class="cancel-btn">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        $(document).ready(function() {
+            // Add dynamic biology elements
+            function createBioElement() {
+                const types = ['cell', 'dna', 'leaf'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                const element = document.createElement('div');
+                element.className = `bio-element ${type}`;
+                element.style.top = Math.random() * 100 + '%';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.animationDelay = Math.random() * 5 + 's';
+                element.style.animationDuration = (15 + Math.random() * 10) + 's';
+                
+                document.querySelector('.bio-bg').appendChild(element);
+                
+                setTimeout(() => {
+                    element.remove();
+                }, 25000);
+            }
+            
+            // Create new bio elements periodically
+            setInterval(createBioElement, 3000);
+            
+            // File upload drag and drop
+            const fileInput = document.getElementById('file');
+            const fileLabel = document.querySelector('.file-upload-label');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                fileLabel.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                fileLabel.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                fileLabel.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight(e) {
+                fileLabel.style.backgroundColor = '#e8f5e9';
+                fileLabel.style.borderColor = '#388E3C';
+            }
+            
+            function unhighlight(e) {
+                fileLabel.style.backgroundColor = '#f9f9f9';
+                fileLabel.style.borderColor = '#4CAF50';
+            }
+            
+            fileLabel.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    updateFileLabel(files[0].name);
+                }
+            }
+            
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    updateFileLabel(this.files[0].name);
+                }
+            });
+            
+            function updateFileLabel(fileName) {
+                const fileText = document.querySelector('.file-upload-text');
+                fileText.innerHTML = `
+                    <strong>${fileName}</strong>
+                    <small>Click or drag to change file</small>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
